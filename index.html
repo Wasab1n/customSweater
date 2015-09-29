@@ -3,8 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
+    <script type="application/javascript" language="JavaScript">
+        window.onload = draw;
+        function draw() {
+            var context = document.getElementById("canvas").getContext("2d");
+            drawing = new Image();
+            drawing.src = "imgs/sweater.png";
+            drawing.onload = function() {
+                context.drawImage(drawing,0, 0);
+            }
+        }
+    </script>
 </head>
 <body>
-    Hello world!
+    <canvas id="canvas" width="600" height="600"></canvas>
 </body>
 </html>
