@@ -1,0 +1,27 @@
+#container {
+    background-color: ivory;
+    height: 600px;
+}
+
+#canvasContainer {
+    float: left;
+    outline: solid thin;
+}
+
+#patterns {
+    margin-left: 50px;
+    outline: solid thin;
+    float: left;
+}
+
+#patternList {
+    list-style-type: none;
+
+}
+
+.patternButton {
+    width: 100px;
+    height: 100px;
+    outline: solid thin;
+    margin: 15px;
+}

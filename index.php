@@ -1,12 +1,14 @@
 <!doctype html>
 <html>
 <head>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
     <script src="http://code.jquery.com/jquery.min.js"></script>
-    <script src="three.js/build/three.min.js"></script>
+    <script src="js/three.min.js"></script>
 
     <script>
         $(document).ready(function(){
-          
+            $('.patternButton').css('cursor', 'pointer');
+
             var canvas=document.getElementById("canvas");
             var ctx=canvas.getContext("2d");
             var canvasOffset=$("#canvas").offset();
@@ -18,14 +20,18 @@
             var img=new Image();
 
             img.onload=function(){
-
                 img1.onload=function(){
                     start(0, 0);
                 }
                 img1.src="imgs/sweater.png";
             }
 
-            img.src="imgs/patterns.png";
+            img.src="imgs/patterns/pattern1.png";
+
+            $(".patternButton").click( function(e) {
+                var buttonId = $(this).attr("buttonNumber");
+                img.src="imgs/patterns/pattern" + buttonId + ".png";
+            });
 
             function start(offsetX, offsetY){
 
@@ -84,7 +90,24 @@
 </head>
 
 <body>
-<canvas id="canvas" width=600 height=600></canvas>
-<div id="container"></div>
+<div id="container">
+    <div id="canvasContainer">
+        <canvas id="canvas" width=600 height=600></canvas>
+    </div>
+    <div id="patterns">
+        <ul id="patternList">
+            <?php
+                $dir = new DirectoryIterator(dirname(__DIR__ . '/imgs/patterns/*'));
+                    $i = 1;
+                    foreach ($dir as $fileinfo) {
+                        if (!$fileinfo->isDot()) {
+                            echo "<li buttonNumber='$i' class=\"patternButton\" style=\"background-image: url('imgs/patterns/pattern$i.png')\">$i</li>\n";
+                            $i++;
+                        }
+                    }
+            ?>
+        </ul>
+    </div>
+</div>
 </body>
 </html>
