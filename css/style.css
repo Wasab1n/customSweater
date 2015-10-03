@@ -24,4 +24,5 @@
     height: 100px;
     outline: solid thin;
     margin: 15px;
+    cursor: pointer;
 }
