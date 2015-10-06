@@ -16,7 +16,7 @@
 
 #patternList {
     list-style-type: none;
-
+    padding: 0;
 }
 
 .patternButton {
@@ -25,4 +25,22 @@
     outline: solid thin;
     margin: 15px;
     cursor: pointer;
+}
+
+#colours {
+    margin-top: 25px;
+    margin-left: 50px;
+    outline: solid thin;
+    float: left;
+}
+
+.colourButton {
+    width: 100px;
+    height: 100px;
+    margin: 15px;
+    cursor: pointer;
+}
+
+#colourChangeCanvas {
+    display: none;
 }

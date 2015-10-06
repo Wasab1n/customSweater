@@ -2,17 +2,29 @@
  * Created by Lukas on 2015.10.03.
  */
 
-function ProductPreview(canvasId, productImageSrc, patternImageSrc, productOpacity)
+function ProductPreview(canvasId, productImageSrc, patternImageParam, productOpacity)
 {
-    this.canvas = document.getElementById(canvasId);
-    var context = this.canvas.getContext("2d");
+    var canvas = document.getElementById(canvasId);
+    var context = canvas.getContext("2d");
     var canvasOffset = $("#" + canvasId).offset();
     var offsetX = canvasOffset.left;
     var offsetY = canvasOffset.top;
     var isDragging = false;
-
     var productImage = new Image();
-    var patternImage = new Image();
+    var patternImage = patternImageParam;
+    var canvasReady = true;
+
+    this.setPatternImage = function(patternImageParam)
+    {
+        patternImage = patternImageParam;
+        start(0, 0);
+    }
+
+    this.getPatternImage = function()
+    {
+        return patternImage;
+    }
+
     patternImage.onload=function()
     {
         productImage.onload=function()
@@ -22,12 +34,7 @@ function ProductPreview(canvasId, productImageSrc, patternImageSrc, productOpaci
         productImage.src = productImageSrc;
     }
 
-    patternImage.src = patternImageSrc;
-
-    this.productImage = productImage;
-    this.patternImage = patternImage;
-
-    function start(offsetX, offsetY)
+    var start = function(offsetX, offsetY)
     {
         var pattern = context.createPattern(patternImage, 'repeat');
         context.drawImage(productImage,0,0);
@@ -43,28 +50,28 @@ function ProductPreview(canvasId, productImageSrc, patternImageSrc, productOpaci
             context.drawImage(productImage,0,0);
     }
 
-    function handleMouseDown(e)
+    var handleMouseDown = function(e)
     {
         mousePositionX = parseInt(e.clientX - offsetX);
         mousePositionY = parseInt(e.clientY - offsetY);
         isDragging = true;
     }
 
-    function handleMouseUp(e)
+    var handleMouseUp = function(e)
     {
         mousePositionX = parseInt(e.clientX - offsetX);
         mousePositionY = parseInt(e.clientY - offsetY);
         isDragging=false;
     }
 
-    function handleMouseOut(e)
+    var handleMouseOut = function(e)
     {
         mousePositionX = parseInt(e.clientX - offsetX);
         mousePositionY = parseInt(e.clientY - offsetY);
         isDragging=false;
     }
 
-    function handleMouseMove(e)
+    var handleMouseMove = function(e)
     {
         mousePositionX = parseInt(e.clientX - offsetX);
         mousePositionY = parseInt(e.clientY - offsetY);

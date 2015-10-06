@@ -10,6 +10,8 @@
 </head>
 
 <body>
+
+<canvas id="colourChangeCanvas" width=600 height=600></canvas>
 <div id="container">
     <div id="canvasContainer">
         <canvas id="canvas" width=600 height=600></canvas>
@@ -20,13 +22,15 @@
                 $dir = new DirectoryIterator(dirname(__DIR__ . '/imgs/patterns/*'));
                     $i = 1;
                     foreach ($dir as $fileinfo) {
-                        if (!$fileinfo->isDot()) {
+                        if (!$fileinfo->isDot() && $fileinfo->isFile()) {
                             echo "<li buttonNumber='$i' class=\"patternButton\" style=\"background-image: url('imgs/patterns/pattern$i.png')\">$i</li>\n";
                             $i++;
                         }
                     }
             ?>
         </ul>
+    </div>
+    <div id="colours">
     </div>
 </div>
 </body>
