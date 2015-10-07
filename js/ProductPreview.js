@@ -2,6 +2,8 @@
  * Created by Lukas on 2015.10.03.
  */
 
+// Produkto atvaizdavimo klase
+
 function ProductPreview(canvasId, productImageSrc, patternImageParam, productOpacity)
 {
     var canvas = document.getElementById(canvasId);
@@ -13,11 +15,20 @@ function ProductPreview(canvasId, productImageSrc, patternImageParam, productOpa
     var productImage = new Image();
     var patternImage = patternImageParam;
     var canvasReady = true;
+    var patternImageId = 1;
 
     this.setPatternImage = function(patternImageParam)
     {
+        var patternImageSource = patternImageParam.src.split("/");
+        patternImageId = patternImageSource[patternImageSource.length - 1].split(".")[0];
+        patternImageId = patternImageId[patternImageId.length - 1];
         patternImage = patternImageParam;
         start(0, 0);
+    }
+
+    this.getPatternImageId = function()
+    {
+        return patternImageId;
     }
 
     this.getPatternImage = function()

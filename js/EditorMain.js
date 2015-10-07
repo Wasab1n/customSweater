@@ -1,6 +1,4 @@
-/**
- * Created by Lukas on 2015.10.03.
- */
+
 
 $(document).ready(function() {
 
@@ -22,6 +20,16 @@ $(document).ready(function() {
     window.onload = function()
     {
         colourChanger = new ColourChanger(productPreview);
+
+        $.ajax({
+            type: "POST",
+            url: "getColours.php",
+            data: { patternId : productPreview.getPatternImageId() },
+            success: function(response) {
+                var data = JSON.parse(response);
+                //alert(data);
+            }
+        })
     };
 
     $("#colours").on("click", "div", function (e)
@@ -32,6 +40,8 @@ $(document).ready(function() {
         }
     });
 });
+
+// Spalvos keitiklio klase
 
 function ColourChanger(productPreviewParam)
 {
@@ -132,4 +142,9 @@ function ColourChanger(productPreviewParam)
     newDiv.className = "colourButton";
     newDiv.style.backgroundImage = "url(" + colourURL + ")";
     colourDiv.appendChild(newDiv);
+    var newDivv = document.createElement("div");
+    newDivv.style.backgroundImage = "url(imgs/patterns/colours/pattern1/1.bmp)";
+    newDivv.style.width = "50px";
+    newDivv.style.height = "50px";
+    colourDiv.appendChild(newDivv);
 }
