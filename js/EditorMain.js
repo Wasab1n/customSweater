@@ -1,5 +1,4 @@
 
-
 $(document).ready(function() {
 
     var colourChanged = null;
@@ -7,7 +6,20 @@ $(document).ready(function() {
     patternImage.src = "imgs/patterns/pattern0.png";
 
     var colourChanger = null;
-    var productPreview = new ProductPreview("canvas", "imgs/sweater.png", patternImage, 4);
+    var productPreview = new ProductPreview("canvas", "imgs/sweater.png", patternImage);
+
+    function getColours(colourId) {
+        $.ajax({
+            type: "POST",
+            url: "getColours.php",
+            data: { patternId : colourId },
+            success: function(response) {
+                var data = JSON.parse(response);
+                colourChanger.setColours(data);
+                colourChanger.displayColourButtons();
+            }
+        });
+    }
 
     $(".patternButton").click( function(e) {
         var buttonId = $(this).attr("buttonNumber");
@@ -17,24 +29,15 @@ $(document).ready(function() {
             newImage.src = "imgs/patterns/pattern" + buttonId + ".png";
             productPreview.setOriginalPatternImage(newImage);
             productPreview.setPatternImage(newImage);
+            getColours(productPreview.getPatternImageId());
             colourChanged = null;
-            colourChanger.displayColourButtons();
         }
     });
 
     window.onload = function()
     {
         colourChanger = new ColourChanger(productPreview);
-
-        $.ajax({
-            type: "POST",
-            url: "getColours.php",
-            data: { patternId : productPreview.getPatternImageId() },
-            success: function(response) {
-                var data = JSON.parse(response);
-                colourChanger.setColours(data);
-            }
-        })
+        getColours(productPreview.getPatternImageId());
     };
 
     $("#colours").on("click", "div", function (e)
@@ -110,6 +113,7 @@ function ColourChanger(productPreviewParam)
             patternImage.height
         );
 
+        imageColours = [];
         for (var i = 0, l = originalPixels.data.length; i < l; i+= 4) {
             var colour = {R: originalPixels.data[i], G: originalPixels.data[i + 1], B: originalPixels.data[i + 2]};
             if (!colourExists(colour, imageColours)) {
@@ -149,13 +153,22 @@ function ColourChanger(productPreviewParam)
         if(!originalPixels) return;
         var newColours = colours[colourId];
 
+        var index = 0;
         for (var i = 0, l = originalPixels.data.length; i < l; i+= 4) {
             var pixelColour = {R: originalPixels.data[i], G: originalPixels.data[i + 1], B: originalPixels.data[i + 2]};
             var colourIndex = getColourIndex(pixelColour);
-            if (currentPixels.data[i + 3] > 0) {
-                currentPixels.data[i] = newColours[colourIndex].R;
-                currentPixels.data[i + 1] = newColours[colourIndex].G;
-                currentPixels.data[i + 2] = newColours[colourIndex].B;
+            if (colourIndex >= newColours.length) {
+                currentPixels.data[i] = newColours[index].R;
+                currentPixels.data[i + 1] = newColours[index].G;
+                currentPixels.data[i + 2] = newColours[index].B;
+                index++;
+                if (index >= newColours.length) index = 0;
+            } else {
+                if (currentPixels.data[i + 3] > 0) {
+                    currentPixels.data[i] = newColours[colourIndex].R;
+                    currentPixels.data[i + 1] = newColours[colourIndex].G;
+                    currentPixels.data[i + 2] = newColours[colourIndex].B;
+                }
             }
         }
 

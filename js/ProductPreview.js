@@ -4,7 +4,7 @@
 
 // Produkto atvaizdavimo klase
 
-function ProductPreview(canvasId, productImageSrc, patternImageParam, productOpacity)
+function ProductPreview(canvasId, productImageSrc, patternImageParam)
 {
     var canvas = document.getElementById(canvasId);
     var context = canvas.getContext("2d");
@@ -61,15 +61,15 @@ function ProductPreview(canvasId, productImageSrc, patternImageParam, productOpa
         var pattern = context.createPattern(patternImage, 'repeat');
         context.drawImage(productImage,0,0);
         context.globalCompositeOperation="source-atop";
-        context.globalAlpha=.85;
+        context.globalAlpha=1;
         context.rect(0, 0, this.canvas.width, this.canvas.height);
         context.translate(offsetX, offsetY);
         context.fillStyle = pattern;
         context.fillRect(-offsetX, -offsetY, this.canvas.width, this.canvas.height);
         context.translate(-offsetX, -offsetY);
-        context.globalAlpha=.15;
-        for (i = 0; i < productOpacity; i++)
-            context.drawImage(productImage,0,0);
+        context.globalAlpha=1;
+        context.globalCompositeOperation = "multiply";
+        context.drawImage(productImage,0,0);
     }
 
     var handleMouseDown = function(e)
