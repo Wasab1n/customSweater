@@ -20,10 +20,10 @@
         <ul id="patternList">
             <?php
                 $dir = new DirectoryIterator(dirname(__DIR__ . '/imgs/patterns/*'));
-                    $i = 1;
+                    $i = 0;
                     foreach ($dir as $fileinfo) {
                         if (!$fileinfo->isDot() && $fileinfo->isFile()) {
-                            echo "<li buttonNumber='$i' class=\"patternButton\" style=\"background-image: url('imgs/patterns/pattern$i.png')\">$i</li>\n";
+                            echo "<li buttonNumber='$i' class=\"patternButton\" style=\"background-image: url('imgs/patterns/pattern$i.png')\"></li>\n";
                             $i++;
                         }
                     }

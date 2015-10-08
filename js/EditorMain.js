@@ -2,19 +2,24 @@
 
 $(document).ready(function() {
 
-    var colourChanged = false;
+    var colourChanged = null;
     var patternImage = new Image();
-    patternImage.src = "imgs/patterns/pattern1.png";
+    patternImage.src = "imgs/patterns/pattern0.png";
 
     var colourChanger = null;
     var productPreview = new ProductPreview("canvas", "imgs/sweater.png", patternImage, 4);
 
     $(".patternButton").click( function(e) {
         var buttonId = $(this).attr("buttonNumber");
-        var newImage = new Image();
-        newImage.src = "imgs/patterns/pattern" + buttonId + ".png";
-        productPreview.setPatternImage(newImage);
-        colourChanged = false;
+        var i = productPreview.getPatternImageId();
+        if (buttonId != productPreview.getPatternImageId()) {
+            var newImage = new Image();
+            newImage.src = "imgs/patterns/pattern" + buttonId + ".png";
+            productPreview.setOriginalPatternImage(newImage);
+            productPreview.setPatternImage(newImage);
+            colourChanged = null;
+            colourChanger.displayColourButtons();
+        }
     });
 
     window.onload = function()
@@ -27,16 +32,17 @@ $(document).ready(function() {
             data: { patternId : productPreview.getPatternImageId() },
             success: function(response) {
                 var data = JSON.parse(response);
-                //alert(data);
+                colourChanger.setColours(data);
             }
         })
     };
 
     $("#colours").on("click", "div", function (e)
     {
-        if (!colourChanged) {
-            colourChanger.changeImageColour();
-            colourChanged = true;
+        var buttonId = $(this).attr("id");
+        if (colourChanged == null || colourChanged != buttonId) {
+            colourChanger.changeImageColour(buttonId);
+            colourChanged = buttonId;
         }
     });
 });
@@ -51,6 +57,19 @@ function ColourChanger(productPreviewParam)
     var originalPixels = null;
     var currentPixels = null;
     var canvasReady = false;
+    var colours = [];
+    var imageColours = [];
+
+    this.getColours = function()
+    {
+        return colours;
+    }
+
+    this.setColours = function(coloursParam)
+    {
+        colours = coloursParam;
+        this.displayColourButtons();
+    }
 
     canvas.onload = function()
     {
@@ -69,54 +88,74 @@ function ColourChanger(productPreviewParam)
 
     var getPixels = function()
     {
-        canvas.width = productPreview.getPatternImage().width;
-        canvas.height = productPreview.getPatternImage().height;
+        var patternImage = productPreview.getOriginalPatternImage();
+        canvas.width = patternImage.width;
+        canvas.height =  patternImage.height;
         context.drawImage(
-            productPreview.getPatternImage(),
+            patternImage,
             0,
             0,
-            productPreview.getPatternImage().naturalWidth,
-            productPreview.getPatternImage().naturalHeight,
+            patternImage.naturalWidth,
+            patternImage.naturalHeight,
             0,
             0,
-            productPreview.getPatternImage().width,
-            productPreview.getPatternImage().height
+            patternImage.width,
+            patternImage.height
         );
+
         originalPixels = context.getImageData(
             0,
             0,
-            productPreview.getPatternImage().width,
-            productPreview.getPatternImage().height
+            patternImage.width,
+            patternImage.height
         );
+
+        for (var i = 0, l = originalPixels.data.length; i < l; i+= 4) {
+            var colour = {R: originalPixels.data[i], G: originalPixels.data[i + 1], B: originalPixels.data[i + 2]};
+            if (!colourExists(colour, imageColours)) {
+                imageColours.push(colour);
+            }
+        }
+
         currentPixels = context.getImageData(
             0,
             0,
-            productPreview.getPatternImage().width,
-            productPreview.getPatternImage().height
+            patternImage.width,
+            patternImage.height
         );
     }
 
-    var hexToRGB = function(hex)
+    var colourExists = function(colour, array)
     {
-        var long = parseInt(hex.replace(/^#/, ""), 16);
-        return {
-            R: (long >>> 16) & 0xff,
-            G: (long >>> 8) & 0xff,
-            B: long & 0xff
+        for (var i = 0; i < array.length; i++) {
+            if (array[i].R == colour.R && array[i].G == colour.G && array[i].B == colour.B)
+                return true;
         }
-    };
+        return false;
+    }
 
-    var changeColour = function()
+    var getColourIndex = function(colour)
+    {
+        for (var i = 0; i < imageColours.length; i++) {
+            if (imageColours[i].R == colour.R && imageColours[i].G == colour.G && imageColours[i].B == colour.B)
+                return i;
+        }
+        return -1;
+    }
+
+    var changeColour = function(colourId)
     {
         canvasReady = false;
         if(!originalPixels) return;
-        var newColor = hexToRGB("#ac1564");
+        var newColours = colours[colourId];
 
         for (var i = 0, l = originalPixels.data.length; i < l; i+= 4) {
+            var pixelColour = {R: originalPixels.data[i], G: originalPixels.data[i + 1], B: originalPixels.data[i + 2]};
+            var colourIndex = getColourIndex(pixelColour);
             if (currentPixels.data[i + 3] > 0) {
-                currentPixels.data[i] = originalPixels.data[i] / 255 * newColor.R;
-                currentPixels.data[i + 1] = originalPixels.data[i + 1] / 255 * newColor.G;
-                currentPixels.data[i + 2] = originalPixels.data[i + 2] / 255 * newColor.B;
+                currentPixels.data[i] = newColours[colourIndex].R;
+                currentPixels.data[i + 1] = newColours[colourIndex].G;
+                currentPixels.data[i + 2] = newColours[colourIndex].B;
             }
         }
 
@@ -124,27 +163,32 @@ function ColourChanger(productPreviewParam)
         return canvas.toDataURL("image/png");
     }
 
-    this.changeImageColour = function()
+    this.changeImageColour = function(colourId)
     {
         getPixels();
-        var colourURL = changeColour();
+        var colourURL = changeColour(colourId);
         var newImage = new Image();
         newImage.src = colourURL;
         productPreview.setPatternImage(newImage);
     }
 
-    getPixels();
-    var colourDiv = document.getElementById("colours");
-    var colourURL = changeColour();
-    var colourImage = new Image();
-    colourImage.src = colourURL;
-    var newDiv = document.createElement("div");
-    newDiv.className = "colourButton";
-    newDiv.style.backgroundImage = "url(" + colourURL + ")";
-    colourDiv.appendChild(newDiv);
-    var newDivv = document.createElement("div");
-    newDivv.style.backgroundImage = "url(imgs/patterns/colours/pattern1/1.bmp)";
-    newDivv.style.width = "50px";
-    newDivv.style.height = "50px";
-    colourDiv.appendChild(newDivv);
+
+    this.displayColourButtons = function()
+    {
+        var colourDiv = document.getElementById("colours");
+        while (colourDiv.firstChild) {
+            colourDiv.removeChild(colourDiv.firstChild);
+        }
+        for (i = 0; i < colours.length; i++) {
+            getPixels();
+            var colourURL = changeColour(i);
+            var colourImage = new Image();
+            colourImage.src = colourURL;
+            var newDiv = document.createElement("div");
+            newDiv.className = "colourButton";
+            newDiv.style.backgroundImage = "url(" + colourURL + ")";
+            newDiv.id = i;
+            colourDiv.appendChild(newDiv);
+        }
+    }
 }

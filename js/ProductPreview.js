@@ -14,8 +14,19 @@ function ProductPreview(canvasId, productImageSrc, patternImageParam, productOpa
     var isDragging = false;
     var productImage = new Image();
     var patternImage = patternImageParam;
+    var originalPatternImage = patternImageParam;
     var canvasReady = true;
-    var patternImageId = 1;
+    var patternImageId = 0;
+
+    this.setOriginalPatternImage = function(originalPatternImageParam)
+    {
+        originalPatternImage = originalPatternImageParam;
+    }
+
+    this.getOriginalPatternImage = function()
+    {
+        return originalPatternImage;
+    }
 
     this.setPatternImage = function(patternImageParam)
     {
