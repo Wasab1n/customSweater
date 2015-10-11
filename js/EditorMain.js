@@ -8,6 +8,12 @@ $(document).ready(function() {
     var colourChanger = null;
     var productPreview = new ProductPreview("canvas", "imgs/sweater.png", patternImage);
 
+    window.onload = function()
+    {
+        colourChanger = new ColourChanger(productPreview);
+        getColours(productPreview.getPatternImageId());
+    };
+
     function getColours(colourId) {
         $.ajax({
             type: "POST",
@@ -33,12 +39,6 @@ $(document).ready(function() {
             colourChanged = null;
         }
     });
-
-    window.onload = function()
-    {
-        colourChanger = new ColourChanger(productPreview);
-        getColours(productPreview.getPatternImageId());
-    };
 
     $("#colours").on("click", "div", function (e)
     {
