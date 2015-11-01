@@ -17,7 +17,18 @@ function ProductPreview(canvasId, productImageSrc, patternImageParam)
     var originalPatternImage = patternImageParam;
     var canvasReady = true;
     var patternImageId = 0;
+	var patternButtonId = 0;
+	var imgHeight = 50;
+	var imgWidth = 50;
 
+	
+	this.setPatternButtonID = function(patternButtonIdParam)
+	{
+		var patternImageSource = patternButtonIdParam.src.split("/");
+        patternButtonId = patternImageSource[patternImageSource.length - 1].split(".")[0];
+        patternButtonId = patternButtonId[patternButtonId.length - 1];
+	}
+	
     this.setOriginalPatternImage = function(originalPatternImageParam)
     {
         originalPatternImage = originalPatternImageParam;
@@ -40,6 +51,11 @@ function ProductPreview(canvasId, productImageSrc, patternImageParam)
     this.getPatternImageId = function()
     {
         return patternImageId;
+    }
+	
+	this.getPatternButtonId = function()
+    {
+        return patternButtonId;
     }
 
     this.getPatternImage = function()
@@ -65,7 +81,7 @@ function ProductPreview(canvasId, productImageSrc, patternImageParam)
         context.rect(0, 0, this.canvas.width, this.canvas.height);
         context.translate(offsetX, offsetY);
         context.fillStyle = pattern;
-        context.fillRect(-offsetX, -offsetY, this.canvas.width, this.canvas.height);
+		context.fillRect(-offsetX, -offsetY, this.canvas.width, this.canvas.height);
         context.translate(-offsetX, -offsetY);
         context.globalAlpha=1;
         context.globalCompositeOperation = "multiply";

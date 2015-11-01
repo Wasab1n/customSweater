@@ -3,16 +3,21 @@ $(document).ready(function() {
 
     var colourChanged = null;
     var patternImage = new Image();
+	patternSize = 100;
     patternImage.src = "imgs/patterns/pattern0.png";
-
-    var colourChanger = null;
+	patternImage.width = patternSize;
+	patternImage.height = patternSize;
+	
+	var colourChanger = null;
     var productPreview = new ProductPreview("canvas", "imgs/sweater.png", patternImage);
 
+	
     window.onload = function()
     {
         colourChanger = new ColourChanger(productPreview);
         getColours(productPreview.getPatternImageId());
     };
+
 
     function getColours(colourId) {
         $.ajax({
@@ -33,11 +38,58 @@ $(document).ready(function() {
         if (buttonId != productPreview.getPatternImageId()) {
             var newImage = new Image();
             newImage.src = "imgs/patterns/pattern" + buttonId + ".png";
+			newImage.width = patternSize;
+			newImage.height = patternSize;
             productPreview.setOriginalPatternImage(newImage);
             productPreview.setPatternImage(newImage);
+			productPreview.setPatternButtonID(newImage);
             getColours(productPreview.getPatternImageId());
             colourChanged = null;
         }
+    });
+	
+	$(".sizeButton").click( function(e) {
+        var sizeID = $(this).attr("sizeNumber");
+		
+		if(sizeID == 0) {
+			patternSize = 50;
+			patternImage.width = 50;
+			patternImage.height = 50;
+		}
+		if(sizeID == 1) {
+			patternSize = 75;
+			patternImage.width = 75;
+			patternImage.height = 75;
+		}
+		if(sizeID == 2) {
+			patternSize = 100;
+			patternImage.width = 100;
+			patternImage.height = 100;
+		}
+		
+		
+		if (colourChanged == null){
+			var newImage = new Image();
+			var i = productPreview.getPatternButtonId();
+			console.log('i =' + i);
+			newImage.src = "imgs/patterns/pattern" + i + ".png";
+			newImage.width = patternSize;
+			newImage.height = patternSize;
+			productPreview.setOriginalPatternImage(newImage);
+			productPreview.setPatternImage(newImage);
+			getColours(i);
+		} 
+		else {
+			var newImage = new Image();
+			var i = productPreview.getPatternButtonId();
+			newImage.src = "imgs/patterns/pattern" + i + ".png";
+			newImage.width = patternSize;
+			newImage.height = patternSize;
+			productPreview.setOriginalPatternImage(newImage);
+			productPreview.setPatternImage(newImage);
+			colourChanger.changeImageColour(colourChanged);
+			getColours(i);
+		}
     });
 
     $("#colours").on("click", "div", function (e)
@@ -95,23 +147,12 @@ function ColourChanger(productPreviewParam)
         canvas.width = patternImage.width;
         canvas.height =  patternImage.height;
         context.drawImage(
-            patternImage,
-            0,
-            0,
-            patternImage.naturalWidth,
-            patternImage.naturalHeight,
-            0,
-            0,
+            patternImage,0,0,patternImage.naturalWidth,patternImage.naturalHeight,0,0,
             patternImage.width,
             patternImage.height
         );
 
-        originalPixels = context.getImageData(
-            0,
-            0,
-            patternImage.width,
-            patternImage.height
-        );
+        originalPixels = context.getImageData(0,0,patternImage.width,patternImage.height);
 
         imageColours = [];
         for (var i = 0, l = originalPixels.data.length; i < l; i+= 4) {
@@ -205,3 +246,4 @@ function ColourChanger(productPreviewParam)
         }
     }
 }
+
