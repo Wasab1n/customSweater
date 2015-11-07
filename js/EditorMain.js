@@ -6,7 +6,7 @@ $(document).ready(function() {
     patternImage.src = "imgs/patterns/pattern0.png";
 
     var colourChanger = null;
-    var productPreview = new ProductPreview("canvas", "imgs/sweater.png", patternImage);
+    var productPreview = new ProductPreview("canvas", "patternCanvas", "imgs/sweater.png", patternImage, 1);
 
     window.onload = function()
     {
@@ -28,20 +28,45 @@ $(document).ready(function() {
     }
 
     $(".patternButton").click( function(e) {
+        console.log("Pattern clicked");
         var buttonId = $(this).attr("buttonNumber");
         var i = productPreview.getPatternImageId();
         if (buttonId != productPreview.getPatternImageId()) {
             var newImage = new Image();
             newImage.src = "imgs/patterns/pattern" + buttonId + ".png";
             productPreview.setOriginalPatternImage(newImage);
+            productPreview.setOriginalSizePatternImage(newImage);
             productPreview.setPatternImage(newImage);
             getColours(productPreview.getPatternImageId());
             colourChanged = null;
         }
     });
 
+    $(".sizeButton").click( function(e) {
+        console.log("Size clicked");
+        var sizeID = $(this).attr("sizeNumber");
+
+        console.log(sizeID);
+        switch(sizeID) {
+            case '0':
+                productPreview.setPatternSize(1.5);
+                console.log('asdf');
+                break;
+            case '1':
+                productPreview.setPatternSize(1.25);
+                console.log('asdf');
+                break;
+            case '2':
+                productPreview.setPatternSize(1);
+                console.log('asdf');
+                break;
+        }
+
+    });
+
     $("#colours").on("click", "div", function (e)
     {
+        console.log("Colours clicked");
         var buttonId = $(this).attr("id");
         if (colourChanged == null || colourChanged != buttonId) {
             colourChanger.changeImageColour(buttonId);
@@ -183,6 +208,7 @@ function ColourChanger(productPreviewParam)
         var newImage = new Image();
         newImage.src = colourURL;
         productPreview.setPatternImage(newImage);
+        productPreview.setOriginalSizePatternImage(newImage);
     }
 
 

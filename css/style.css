@@ -1,5 +1,4 @@
 #container {
-    background-color: ivory;
     height: 600px;
 }
 
@@ -42,4 +41,28 @@
 
 #colourChangeCanvas {
     display: none;
+}
+
+#patternCanvas {
+    float:left;
+    background-color: beige;
+}
+
+#size {
+    margin-left: 50px;
+    outline: solid thin;
+    float: left;
+}
+
+#sizeList {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sizeButton {
+    width: 50px;
+    height: 50px;
+    outline: solid thin;
+    margin: 5px;
+    cursor: pointer;
 }
