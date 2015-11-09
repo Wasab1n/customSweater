@@ -6,7 +6,7 @@ $(document).ready(function() {
     patternImage.src = "imgs/patterns/pattern0.png";
 
     var colourChanger = null;
-    var productPreview = new ProductPreview("canvas", "patternCanvas", "imgs/sweater.png", patternImage, 1);
+    var productPreview = new ProductPreview("canvas", "patternCanvas", "imgs/sweater.png", patternImage, 1, true);
 
     window.onload = function()
     {
@@ -28,7 +28,6 @@ $(document).ready(function() {
     }
 
     $(".patternButton").click( function(e) {
-        console.log("Pattern clicked");
         var buttonId = $(this).attr("buttonNumber");
         var i = productPreview.getPatternImageId();
         if (buttonId != productPreview.getPatternImageId()) {
@@ -43,22 +42,18 @@ $(document).ready(function() {
     });
 
     $(".sizeButton").click( function(e) {
-        console.log("Size clicked");
         var sizeID = $(this).attr("sizeNumber");
 
         console.log(sizeID);
         switch(sizeID) {
             case '0':
                 productPreview.setPatternSize(1.5);
-                console.log('asdf');
                 break;
             case '1':
                 productPreview.setPatternSize(1.25);
-                console.log('asdf');
                 break;
             case '2':
                 productPreview.setPatternSize(1);
-                console.log('asdf');
                 break;
         }
 
@@ -66,7 +61,6 @@ $(document).ready(function() {
 
     $("#colours").on("click", "div", function (e)
     {
-        console.log("Colours clicked");
         var buttonId = $(this).attr("id");
         if (colourChanged == null || colourChanged != buttonId) {
             colourChanger.changeImageColour(buttonId);

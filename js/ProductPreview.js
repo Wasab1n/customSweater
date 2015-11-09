@@ -4,34 +4,55 @@
 
 // Produkto atvaizdavimo klase
 
-function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImageParam, patternSizeParam)
+function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImageParam, patternSizeParam, draw3dParam)
 {
+    // 3d atvaizdavimo kintamieji
+    var draw3d = draw3dParam;
+    var scene, camera, renderer, plane;
+    var canvas3d = document.getElementById("3dCanvas");
+    var animationID;
+    var keepRendering = true;
+
+    // Peles valdymo kintamieji
+    var canvasOffset = $("#" + canvasId).offset();
+    var offsetX = canvasOffset.left, offsetY = canvasOffset.top;
+    var isDragging = false;
+    var previousX = 0, previousY = 0, currentX = 0, currentY = 0;
+
+    // 2d atvaizdavimo kintamieji
     var canvas = document.getElementById(canvasId);
     var context = canvas.getContext("2d");
-    var patternContext = document.getElementById(patternCanvasId).getContext("2d");
-    var canvasOffset = $("#" + canvasId).offset();
-    var offsetX = canvasOffset.left;
-    var offsetY = canvasOffset.top;
-    var isDragging = false;
+    var patternCanvas = document.getElementById(patternCanvasId);
+    var patternContext = patternCanvas.getContext("2d");
     var productImage = new Image();
     var patternImage = patternImageParam;
     var originalPatternImage = new Image();
     originalPatternImage.src = patternImage.src;
     var originalSizePatternImage = new Image();
     originalSizePatternImage.src = patternImage.src;
-    var canvasReady = true;
     var patternImageId = 0;
-    var previousX = 0;
-    var previousY = 0;
-    var currentX = 0;
-    var currentY = 0;
     var patternImageWidth, patternImageHeight;
     var patternSize = patternSizeParam;
+
+    this.setDraw3d = function(draw3dParam)
+    {
+        this.draw3d = draw3dParam;
+        if (draw3dParam) {
+            document.getElementById(canvasId).style.display = "none";
+            document.getElementById("3dCanvas").style.display = "";
+        } else {
+            document.getElementById(canvasId).style.display = "";
+            document.getElementById("3dCanvas").style.display = "none";
+        }
+    }
+    this.setDraw3d(draw3dParam);
 
     this.setPatternSize = function(patternSizeParam)
     {
         patternSize = patternSizeParam;
         draw(0, 0);
+        if (draw3d)
+            render();
     }
 
     this.setOriginalSizePatternImage = function(originalSizePatternImageParam)
@@ -62,6 +83,8 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
         changeImageDimensions();
         currentX = currentY = 0;
         draw(0, 0);
+        if (draw3d)
+            render();
     }
 
     this.getPatternImageId = function()
@@ -86,17 +109,30 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
 
     var draw = function(offsetX, offsetY)
     {
-        var pattern = context.createPattern(patternImage, 'repeat');
         makePattern(offsetX, offsetY);
+        if (draw3d) {
+            render2D(offsetX, offsetY);
+            render3D(offsetX, offsetY);
+        } else {
+            render2D(offsetX, offsetY);
+        }
+    }
+
+    var render2D = function(offsetX, offsetY)
+    {
+        var pattern = context.createPattern(patternImage, 'repeat');
         context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         context.drawImage(productImage,0,0);
         context.globalCompositeOperation="source-atop";
-        context.globalAlpha=1;
         context.rect(0, 0, this.canvas.width, this.canvas.height);
-        context.drawImage(patternCanvas, 0, 0, patternCanvas.width * patternSize, patternCanvas.height * patternSize);
-        context.globalAlpha=1;
+        context.drawImage(this.patternCanvas, 0, 0, this.patternCanvas.width * patternSize, this.patternCanvas.height * patternSize);
         context.globalCompositeOperation = "multiply";
         context.drawImage(productImage,0,0);
+    }
+
+    var render3D = function(offsetX, offsetY)
+    {
+        plane.material.uniforms.tDiffuse.value.needsUpdate = true;
     }
 
     var makePattern = function(offsetX, offsetY)
@@ -106,15 +142,17 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
         patternContext.rect(0, 0, this.patternCanvas.width, this.patternCanvas.height);
         patternContext.translate(currentX, currentY);
         patternContext.fillStyle = pattern;
-        patternContext.fillRect(-offsetX, -offsetY, this.patternCanvas.width, this.patternCanvas.height);
-        patternContext.fillStyle = pattern;
+        //patternContext.fillRect(-offsetX, -offsetY, this.patternCanvas.width, this.patternCanvas.height);
         patternContext.fillRect(-currentX, -currentY, this.patternCanvas.width, this.patternCanvas.height);
-        //patternContext.drawImage(patternImage, 0, 0);
         patternContext.translate(-currentX, -currentY);
     }
 
     var handleMouseDown = function(e)
     {
+        if (draw3d) {
+            keepRendering = true;
+            animationID = animate();
+        }
         mousePositionX = parseInt(e.clientX - offsetX);
         mousePositionY = parseInt(e.clientY - offsetY);
         previousX = mousePositionX;
@@ -127,6 +165,8 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
         mousePositionX = parseInt(e.clientX - offsetX);
         mousePositionY = parseInt(e.clientY - offsetY);
         isDragging=false;
+        //cancelAnimationFrame(animationID);
+        keepRendering = false;
     }
 
     var handleMouseOut = function(e)
@@ -134,10 +174,13 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
         mousePositionX = parseInt(e.clientX - offsetX);
         mousePositionY = parseInt(e.clientY - offsetY);
         isDragging=false;
+        //cancelAnimationFrame(animationID);
+        keepRendering = false;
     }
 
     var handleMouseMove = function(e)
     {
+       // animate();
         mousePositionX = parseInt(e.clientX - offsetX);
         mousePositionY = parseInt(e.clientY - offsetY);
         if(isDragging){
@@ -169,16 +212,82 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
         }
     }
 
-    changeImageDimensions();
     $("#canvas").mousedown(handleMouseDown);
     $("#canvas").mousemove(handleMouseMove);
     $("#canvas").mouseup(handleMouseUp);
     $("#canvas").mouseout(handleMouseOut);
+    $("#3dCanvas").mousedown(handleMouseDown);
+    $("#3dCanvas").mousemove(handleMouseMove);
+    $("#3dCanvas").mouseup(handleMouseUp);
+    $("#3dCanvas").mouseout(handleMouseOut);
 
+    function init3d() {
+        scene = new THREE.Scene();
+
+        var SCREEN_WIDTH = canvas3d.width, SCREEN_HEIGHT = canvas3d.height;
+        var VIEW_ANGLE = 80, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 1000;
+        camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
+        camera.position.z = 10;
+        scene.add(camera);
+
+        renderer = new THREE.WebGLRenderer({antialias: true, canvas: canvas3d});
+        renderer.setSize(canvas3d.width, canvas3d.height);
+
+        var DiffuseTexture = new THREE.Texture(canvas);
+        var DisplacementTexture = new THREE.ImageUtils.loadTexture("imgs/DisplacementMap.jpg", {}, render);
+        var shader = THREE.ShaderLib["normalmap"];
+        var fragShader = document.getElementById("fragmentShader").innerHTML;
+        var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+        uniforms["enableDisplacement"].value = true;
+        uniforms["enableDiffuse"].value = true;
+        uniforms["tDisplacement"].value = DisplacementTexture;
+        uniforms["tDiffuse"].value = DiffuseTexture;
+        uniforms["uDisplacementScale"].value = 1;
+        var parameters = {
+            fragmentShader: fragShader/*shader.fragmentShader*/,
+            vertexShader: shader.vertexShader,
+            uniforms: uniforms,
+            lights: true
+        };
+        var NormalMaterial = new THREE.ShaderMaterial(parameters);
+        NormalMaterial.wrapAround = true;
+
+        var geometry = new THREE.PlaneGeometry(16, 16, 256, 256);
+        geometry.computeTangents();
+        plane = new THREE.Mesh(geometry, NormalMaterial);
+        scene.add(plane);
+
+        ambientLight = new THREE.AmbientLight(0xFFFFFF);
+        scene.add(ambientLight);
+    }
+
+    function animate() {
+        setTimeout( function() {
+            if (keepRendering)
+                animationID = requestAnimationFrame( animate );
+
+        }, 1000 / 24 );
+
+        render();
+        //if (keepRendering)
+           // animationID = requestAnimationFrame(animate);
+    }
+
+    function render() {
+        renderer.render(scene, camera);
+    }
+
+    changeImageDimensions();
     patternImage.onload=function()
     {
         productImage.onload=function()
         {
+            canvas.width = productImage.width;
+            canvas.height = productImage.height;
+            canvas3d.width = productImage.width;
+            canvas3d.height = productImage.height;
+            if (draw3d)
+                init3d();
             draw(0, 0);
         }
         productImage.src = productImageSrc;

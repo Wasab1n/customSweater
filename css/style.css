@@ -85,3 +85,19 @@
     margin: 5px;
     cursor: pointer;
 }
+
+#canvas3dPrepare {
+
+}
+
+#patternCanvas {
+    display: none;
+}
+
+#3dCanvas {
+    float: left;
+}
+
+#canvas {
+    float:left;
+}
