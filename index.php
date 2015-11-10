@@ -34,40 +34,41 @@
 <div id="container">
     <div id="canvasContainer">
         <canvas id="canvas" width=600 height=600></canvas>
-        <canvas id="3dCanvas" width=600 height=600></canvas>
         <div id="3dContainer" width=600 height=600></div>
     </div>
 
-    <div id="size">
-    	<ul id="sizeList">
-    	    <?php
-                $dir = new DirectoryIterator(dirname(__DIR__ . '/imgs/size/*'));
-                $i = 0;
-                foreach ($dir as $fileinfo) {
-                    if (!$fileinfo->isDot() && $fileinfo->isFile()) {
-                        echo "<li sizeNumber='$i' class=\"sizeButton\" style=\"background-image: url('imgs/size/normal$i.png')\"></li>\n";
-                        $i++;
-                    }
-                }
-            ?>
-        </ul>
-    </div>
-
-    <div id="patterns">
-        <ul id="patternList">
-            <?php
-                $dir = new DirectoryIterator(dirname(__DIR__ . '/imgs/patterns/*'));
+    <div id="optionsContainer">
+        <div id="size">
+            <ul id="sizeList">
+                <?php
+                    $dir = new DirectoryIterator(dirname(__DIR__ . '/imgs/size/*'));
                     $i = 0;
                     foreach ($dir as $fileinfo) {
                         if (!$fileinfo->isDot() && $fileinfo->isFile()) {
-                            echo "<li buttonNumber='$i' class=\"patternButton\" style=\"background-image: url('imgs/patterns/pattern$i.png')\"></li>\n";
+                            echo "<li sizeNumber='$i' class=\"sizeButton\" style=\"background-image: url('imgs/size/normal$i.png')\"></li>\n";
                             $i++;
                         }
                     }
-            ?>
-        </ul>
-    </div>
-    <div id="colours">
+                ?>
+            </ul>
+        </div>
+
+        <div id="patterns">
+            <ul id="patternList">
+                <?php
+                    $dir = new DirectoryIterator(dirname(__DIR__ . '/imgs/patterns/*'));
+                        $i = 0;
+                        foreach ($dir as $fileinfo) {
+                            if (!$fileinfo->isDot() && $fileinfo->isFile()) {
+                                echo "<li buttonNumber='$i' class=\"patternButton\" style=\"background-image: url('imgs/patterns/pattern$i.png')\"></li>\n";
+                                $i++;
+                            }
+                        }
+                ?>
+            </ul>
+        </div>
+        <div id="colours">
+        </div>
     </div>
 </div>
 <canvas id="colourChangeCanvas" width=600 height=600></canvas>

@@ -86,10 +86,6 @@
     cursor: pointer;
 }
 
-#canvas3dPrepare {
-
-}
-
 #patternCanvas {
     display: none;
 }
@@ -100,4 +96,15 @@
 
 #canvas {
     float:left;
+}
+
+#3dContainer {
+    float: left;
+}
+
+#optionsContainer {
+    background-color : beige;
+    float: left;
+    width: auto;
+    height: 600px;
 }
