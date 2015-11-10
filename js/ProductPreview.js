@@ -12,8 +12,6 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
     var canvas3d = document.getElementById("3dCanvas");
     var animationID;
     var keepRendering = true;
-    //var DiffuseTexture;
-    //var NormalMaterial;
 
     // Peles valdymo kintamieji
     var canvasOffset = $("#" + canvasId).offset();
@@ -231,7 +229,6 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
     $("#3dContainer").mouseout(handleMouseOut);
 
     function init3d() {
-        console.log("init3d");
         scene = new THREE.Scene();
 
         var SCREEN_WIDTH = productImage.width, SCREEN_HEIGHT = productImage.height;
@@ -243,7 +240,7 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
         //renderer = new THREE.WebGLRenderer({antialias: true, canvas: canvas3d});
         renderer = new THREE.WebGLRenderer();
         renderer.setSize(productImage.width, productImage.height);
-        renderer.setClearColor( 0xffffff, 1);
+        renderer.setClearColor( 0xEEEEEE, 1);
         document.getElementById("3dContainer").appendChild(renderer.domElement);
 
         var DiffuseTexture = new THREE.Texture(canvas);
@@ -264,38 +261,35 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
             lights: true
         };
         var NormalMaterial = new THREE.ShaderMaterial(parameters);
+
+        //var sphereMaterial =
+        //    new THREE.MeshLambertMaterial(
+        //        {
+        //            color: 0
+        //        });
+        //
+        //var material = new THREE.MeshPhongMaterial( {
+        //
+        //    transparent: true,
+        //
+        //    map: new THREE.Texture(canvas), //DiffuseTexture,
+        //
+        //    displacementMap: DisplacementTexture,
+        //    displacementScale: 1,
+        //    displacementBias: 0,
+        //
+        //    side: THREE.DoubleSide
+        //
+        //} );
+
         var geometry = new THREE.PlaneGeometry(16, 16, 256, 256);
-
-        var sphereMaterial =
-            new THREE.MeshLambertMaterial(
-                {
-                    color: 0
-                });
-
-        var material = new THREE.MeshPhongMaterial( {
-
-            transparent: true,
-
-            map: new THREE.Texture(canvas), //DiffuseTexture,
-
-            displacementMap: DisplacementTexture,
-            displacementScale: 1,
-            displacementBias: 0,
-
-            side: THREE.DoubleSide
-
-        } );
-
         geometry.computeTangents();
 
-        plane = new THREE.Mesh(geometry, NormalMaterial /*material*/);
-        plane.name = "plane";
+        plane = new THREE.Mesh(geometry, NormalMaterial  /*material*/);
         scene.add(plane);
 
-
-        ambientLight = new THREE.AmbientLight(0xFFFFFF);
-        scene.add(ambientLight);
-
+        //ambientLight = new THREE.AmbientLight(0xFFFFFF);
+        //scene.add(ambientLight);
 
     }
 
@@ -331,4 +325,32 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
         productImage.src = productImageSrc;
     }
 
+
+    //window.onbeforeunload = function()
+    //{
+    //    plane.geometry.dispose();
+    //    plane.material.dispose();
+    //    plane.material.uniforms.tDiffuse.value.dispose();
+    //    plane.dipose();
+    //    scene.remove("plane");
+    //    canvas = null;
+    //    DisplacementTexture = null;
+    //    DiffuseTexture = null;
+    //    renderer.resetGlState();
+    //    renderer.dispose();
+    //}
+    //
+    //window.onunload = function()
+    //{
+    //    plane.geometry.dispose();
+    //    plane.material.dispose();
+    //    plane.material.uniforms.tDiffuse.value.dispose();
+    //    plane.dipose();
+    //    scene.remove("plane");
+    //    canvas = null;
+    //    DisplacementTexture = null;
+    //    DiffuseTexture = null;
+    //    renderer.resetGlState();
+    //    renderer.dispose();
+    //}
 }

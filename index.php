@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" type="text/css" href="css/style.css">
     <script src="js/libs/three.js"></script>
     <script src="js/libs/jquery-2.1.4.js"></script>
@@ -32,13 +33,10 @@
 <body>
 
 <div id="container">
-    <div id="canvasContainer">
-        <canvas id="canvas" width=600 height=600></canvas>
-        <div id="3dContainer" width=600 height=600></div>
-    </div>
 
     <div id="optionsContainer">
         <div id="size">
+            <div class="optionHeader">Dydžiai</div>
             <ul id="sizeList">
                 <?php
                     $dir = new DirectoryIterator(dirname(__DIR__ . '/imgs/size/*'));
@@ -54,6 +52,7 @@
         </div>
 
         <div id="patterns">
+        <div class="optionHeader">Raštai</div>
             <ul id="patternList">
                 <?php
                     $dir = new DirectoryIterator(dirname(__DIR__ . '/imgs/patterns/*'));
@@ -67,9 +66,15 @@
                 ?>
             </ul>
         </div>
-        <div id="colours">
+        <div id="coloursContainer">
+            <div class="optionHeader">Spalvos</div>
+            <div id="colours"></div>
         </div>
     </div>
+       <div id="canvasContainer">
+            <canvas id="canvas" width=600 height=600></canvas>
+            <div id="3dContainer" width=600 height=600></div>
+       </div>
 </div>
 <canvas id="colourChangeCanvas" width=600 height=600></canvas>
 <canvas id="patternCanvas" width=1000 height=1000></canvas>
