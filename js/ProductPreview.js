@@ -306,6 +306,7 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
 
     function render() {
         if(draw3d) {
+            console.log("Rendering");
             renderer.render(scene, camera);
         }
     }
