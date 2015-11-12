@@ -46,13 +46,13 @@ $(document).ready(function() {
 
         console.log(sizeID);
         switch(sizeID) {
-            case '0':
+            case '2':
                 productPreview.setPatternSize(1.5);
                 break;
             case '1':
                 productPreview.setPatternSize(1.25);
                 break;
-            case '2':
+            case '0':
                 productPreview.setPatternSize(1);
                 break;
         }
