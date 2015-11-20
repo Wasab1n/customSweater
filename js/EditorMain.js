@@ -6,13 +6,13 @@ $(document).ready(function() {
     patternImage.src = "imgs/patterns/pattern0.png";
 
     var colourChanger = null;
-    var productPreview = new ProductPreview("canvas", "patternCanvas", "imgs/sweater.png", patternImage, 1, true);
+    var productPreview = new ProductPreview("canvas", "patternCanvas", "imgs/sweater.png", patternImage, 1, "threejs");
+    var mouseHandler = new MouseHandler(productPreview);
 
-    window.onload = function()
-    {
+    $(window).load(function() {
         colourChanger = new ColourChanger(productPreview);
         getColours(productPreview.getPatternImageId());
-    };
+    });
 
     function getColours(colourId) {
         $.ajax({

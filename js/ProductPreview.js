@@ -2,161 +2,19 @@
  * Created by Lukas on 2015.10.03.
  */
 
-// Produkto atvaizdavimo klase
+function MouseHandler(productPreviewInstance) {
 
-function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImageParam, patternSizeParam, draw3dParam)
-{
-    // 3d atvaizdavimo kintamieji
-    var draw3d = draw3dParam;
-    var scene, camera, renderer, plane;
-    var canvas3d = document.getElementById("3dCanvas");
-    var animationID;
-    var keepRendering = true;
-
-    // Peles valdymo kintamieji
-    var canvasOffset = $("#" + canvasId).offset();
+    var productPreview = productPreviewInstance;
+    var canvasOffset = $("#" + productPreview.getCanvasId()).offset();
     var offsetX = canvasOffset.left, offsetY = canvasOffset.top;
     var isDragging = false;
     var previousX = 0, previousY = 0, currentX = 0, currentY = 0;
+    var patternImageWidth, patternImageHeight, patternSize;
+    var mousePositionX, mousePositionY;
 
-    // 2d atvaizdavimo kintamieji
-    var canvas = document.getElementById(canvasId);
-    var patternCanvas = document.getElementById(patternCanvasId);
-    var patternContext = patternCanvas.getContext("2d");
-    var productImage = new Image();
-    var patternImage = patternImageParam;
-    var originalPatternImage = new Image();
-    originalPatternImage.src = patternImage.src;
-    var originalSizePatternImage = new Image();
-    originalSizePatternImage.src = patternImage.src;
-    var patternImageId = 0;
-    var patternImageWidth, patternImageHeight;
-    var patternSize = patternSizeParam;
-    var pattern;
-
-    this.setDraw3d = function(draw3dParam)
-    {
-        this.draw3d = draw3dParam;
-        if (draw3dParam) {
-            document.getElementById(canvasId).style.display = "none";
-            document.getElementById("3dContainer").style.display = "";
-        } else {
-            document.getElementById(canvasId).style.display = "";
-            document.getElementById("3dContainer").style.display = "none";
-        }
-    }
-    this.setDraw3d(draw3dParam);
-
-    this.setPatternSize = function(patternSizeParam)
-    {
-        patternSize = patternSizeParam;
-        draw(0, 0);
-        if (draw3d)
-            render();
-    }
-
-    this.setOriginalSizePatternImage = function(originalSizePatternImageParam)
-    {
-        var newImage = new Image();
-        newImage.src = originalSizePatternImageParam.src;
-        originalSizePatternImage = newImage;
-    }
-
-    this.setOriginalPatternImage = function(originalPatternImageParam)
-    {
-        var newImage = new Image();
-        newImage.src = originalPatternImageParam.src;
-        originalPatternImage = newImage;
-    }
-
-    this.getOriginalPatternImage = function()
-    {
-        return originalPatternImage;
-    }
-
-    this.setPatternImage = function(patternImageParam)
-    {
-        var patternImageSource = patternImageParam.src.split("/");
-        patternImageId = patternImageSource[patternImageSource.length - 1].split(".")[0];
-        patternImageId = patternImageId[patternImageId.length - 1];
-        patternImage = patternImageParam;
-        pattern = patternContext.createPattern(patternImage, 'repeat');
-        changeImageDimensions();
-        currentX = currentY = 0;
-        draw(0, 0);
-        if (draw3d)
-            patternImage.onload = render();
-    }
-
-    this.getPatternImageId = function()
-    {
-        return patternImageId;
-    }
-
-    this.getPatternImage = function()
-    {
-        return patternImage;
-    }
-
-    var changeImageDimensions = function() {
-        if (patternImage.width < canvas.width || patternImage.height < canvas.height) {
-            patternImageWidth = 2000;
-            patternImageHeight = 2000;
-        } else {
-            patternImageWidth = patternImage.width;
-            patternImageHeight = patternImage.height;
-        }
-    }
-
-    var draw = function()
-    {
-        makePattern();
-        render2D()
-        if (draw3d)
-            render3D();
-    }
-
-    var render2D = function()
-    {
-        var context = canvas.getContext("2d");
-        context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        context.drawImage(productImage,0,0);
-        context.globalCompositeOperation="source-atop";
-        context.globalAlpha = 0.75;
-        context.drawImage(this.patternCanvas, 0, 0, this.patternCanvas.width * patternSize, this.patternCanvas.height * patternSize);
-        context.globalAlpha = 1;
-        context.globalCompositeOperation = "multiply";
-        context.drawImage(productImage,0,0);
-    }
-
-    var render3D = function()
-    {
-        //plane.material.uniforms.tDiffuse.value = null;
-        //plane.material.uniforms.tDiffuse.value = new THREE.Texture(canvas);
-        //DiffuseTexture = new THREE.Texture(canvas);
-        //DiffuseTexture.needsUpdate = true;
-        plane.material.uniforms.tDiffuse.value.needsUpdate = true;
-        //plane.material.map = new THREE.Texture(canvas);
-        //plane.material.map.needsUpdate = true;
-        //scene.getObjectByName('plane').material.map = new THREE.Texture(canvas);
-        //scene.getObjectByName('plane').material.map.needsUpdate = true;
-    }
-
-    var makePattern = function()
-    {
-        patternContext.clearRect(0, 0, this.patternCanvas.width, this.patternCanvas.height);
-        patternContext.rect(0, 0, this.patternCanvas.width, this.patternCanvas.height);
-        patternContext.translate(currentX, currentY);
-        patternContext.fillStyle = pattern;
-        //patternContext.fillRect(-offsetX, -offsetY, this.patternCanvas.width, this.patternCanvas.height);
-        patternContext.fillRect(-currentX, -currentY, this.patternCanvas.width, this.patternCanvas.height);
-        patternContext.translate(-currentX, -currentY);
-    }
-
-    var handleMouseDown = function(e)
-    {
-        keepRendering = true;
-        animate();
+    var handleMouseDown = function(e) {
+        productPreview.setKeepRendering(true);
+        productPreview.animateMethod();
         mousePositionX = parseInt(e.clientX - offsetX);
         mousePositionY = parseInt(e.clientY - offsetY);
         previousX = mousePositionX;
@@ -165,33 +23,31 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
         return false;
     }
 
-    var handleMouseUp = function(e)
-    {
+    var handleMouseUp = function(e) {
         mousePositionX = parseInt(e.clientX - offsetX);
         mousePositionY = parseInt(e.clientY - offsetY);
-        isDragging=false;
-        //cancelAnimationFrame(animationID);
-        keepRendering = false;
+        isDragging = false;
+        productPreview.setKeepRendering(false);
         return false;
     }
 
-    var handleMouseOut = function(e)
-    {
+    var handleMouseOut = function(e) {
         mousePositionX = parseInt(e.clientX - offsetX);
         mousePositionY = parseInt(e.clientY - offsetY);
-        isDragging=false;
-        //cancelAnimationFrame(animationID);
-        keepRendering = false;
+        isDragging = false;
+        productPreview.setKeepRendering(false);
         return false;
     }
 
-    var handleMouseMove = function(e)
-    {
+    var handleMouseMove = function(e) {
         mousePositionX = parseInt(e.clientX - offsetX);
         mousePositionY = parseInt(e.clientY - offsetY);
+        patternImageWidth = productPreview.getPatternImageWidth();
+        patternImageHeight = productPreview.getPatternImageHeight();
+        patternSize = productPreview.getPatternSize();
         if(isDragging){
             //console.log(mousePositionX - previousX);
-           // console.log(mousePositionY - previousY);
+            // console.log(mousePositionY - previousY);
             if ((currentX - 600 + patternImageWidth > 0 || mousePositionX - previousX > 0) && (currentX < 0 || mousePositionX - previousX < 0)) {
                 if (currentX + mousePositionX - previousX < -patternImageWidth + canvas.width) {
                     currentX = -patternImageWidth + canvas.width;
@@ -214,8 +70,9 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
             //console.log(currentY);
             previousX = mousePositionX;
             previousY = mousePositionY;
+            productPreview.setDrawX(currentX);
+            productPreview.setDrawY(currentY);
         }
-        draw();
         return false;
     }
 
@@ -227,8 +84,418 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
     $("#3dContainer").mousemove(handleMouseMove);
     $("#3dContainer").mouseup(handleMouseUp);
     $("#3dContainer").mouseout(handleMouseOut);
+}
 
-    function init3d() {
+// Produkto atvaizdavimo klase
+
+function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImageParam, patternSizeParam, drawTypeParam) {
+
+    var self = this;
+    var drawX = 0;
+    var drawY = 0;
+
+    // 3d atvaizdavimo kintamieji
+    var drawType;
+
+    // 2d atvaizdavimo kintamieji
+    var canvas = document.getElementById(canvasId);
+    var patternCanvas = document.getElementById(patternCanvasId);
+    var productImage = new Image();
+    var patternImage = patternImageParam;
+    var originalPatternImage = new Image();
+    originalPatternImage.src = patternImage.src;
+    var originalSizePatternImage = new Image();
+    originalSizePatternImage.src = patternImage.src;
+    var patternImageId = 0;
+    var patternImageWidth, patternImageHeight;
+    var patternSize = patternSizeParam;
+
+    this.setDrawX = function(drawXParam) {
+        drawX = drawXParam;
+    }
+
+    this.setDrawY = function(drawYParam) {
+        drawY = drawYParam;
+    }
+
+    this.getCanvasId = function() {
+        return canvasId;
+    }
+
+    this.setKeepRendering = function(keepRenderingParam) {
+        keepRendering = keepRenderingParam;
+    }
+
+    this.getPatternSize= function() {
+        return patternSize;
+    }
+
+    this.getPatternImageWidth = function() {
+        return patternImageWidth;
+    }
+
+    this.getPatternImageHeight = function() {
+        return patternImageHeight;
+    }
+
+    this.setOriginalSizePatternImage = function(originalSizePatternImageParam) {
+        originalSizePatternImage = originalSizePatternImageParam;
+    }
+
+    this.setOriginalPatternImage = function(originalPatternImageParam) {
+        originalPatternImage = originalPatternImageParam;
+    }
+
+    this.getOriginalPatternImage = function() {
+        return originalPatternImage;
+    }
+
+    this.getPatternImageId = function() {
+        return patternImageId;
+    }
+
+    this.getPatternImage = function() {
+        return patternImage;
+    }
+
+    this.setDrawType = function(drawTypeParam) {
+        drawType = drawTypeParam;
+        if (drawTypeParam == "webgl") {
+            //document.getElementById(canvasId).style.display = "none";
+            //document.getElementById("3dContainer").style.display = "";
+            webglRenderer.initWebgl();
+            webglRenderer.setVisibility(true);
+            canvasRenderer.setVisibility(false);
+            threeJsRenderer.setVisibility(false);
+        } else if (drawTypeParam == "threejs"){
+            //document.getElementById(canvasId).style.display = "";
+            //document.getElementById("3dContainer").style.display = "none";
+            threeJsRenderer.setProductImage(productImage);
+            threeJsRenderer.init3d();
+            webglRenderer.setVisibility(false);
+            canvasRenderer.setVisibility(false);
+            threeJsRenderer.setVisibility(true);
+        } else {
+            webglRenderer.setVisibility(false);
+            canvasRenderer.setVisibility(true);
+            threeJsRenderer.setVisibility(false);
+        }
+    }
+
+    this.setPatternSize = function(patternSizeParam) {
+        patternSize = patternSizeParam;
+        canvasRenderer.setPatternSize(patternSizeParam);
+        draw();
+    }
+
+    this.setPatternImage = function(patternImageParam) {
+        var patternImageSource = patternImageParam.src.split("/");
+        patternImageId = patternImageSource[patternImageSource.length - 1].split(".")[0];
+        patternImageId = patternImageId[patternImageId.length - 1];
+        patternImage = patternImageParam;
+        patternMaker.setPatternImage(patternImageParam);
+        patternImage.onload = function() {
+            changeImageDimensions();
+            draw();
+        }
+    }
+
+    var draw = function() {
+        patternMaker.makePattern(drawX, drawY);
+        if (drawType == "canvas" || drawType == "threejs")
+            canvasRenderer.render2D();
+        if (drawType == "webgl")
+            webglRenderer.drawWebgl();
+        if (drawType == "threejs")
+            threeJsRenderer.render();
+    }
+
+    var changeImageDimensions = function() {
+        if (patternImage.width < canvas.width || patternImage.height < canvas.height) {
+            patternImageWidth = 2000;
+            patternImageHeight = 2000;
+        } else {
+            patternImageWidth = patternImage.width;
+            patternImageHeight = patternImage.height;
+        }
+    }
+
+    this.animateMethod = function() {
+        animate();
+    }
+
+    function animate() {
+        draw();
+        if (keepRendering)
+            requestAnimationFrame(animate);
+    }
+
+    var interp = new Image();
+    var model = new Image();
+    var source = new Image();
+    var mask = new Image();
+
+    var derp = "derp";
+
+    var canvasRenderer = new CanvasRenderer(canvas, patternCanvas);
+    var webglRenderer = new WebglRenderer(interp, source, model, mask, patternCanvas);
+    var threeJsRenderer = new ThreeJsRenderer(canvas, patternCanvas);
+    var patternMaker = new PaternMaker(patternCanvas);
+
+    patternImage.onload=function() {
+        productImage.onload=function() {
+            changeImageDimensions();
+            canvasRenderer.setProductImage(productImage);
+            patternMaker.setPatternImage(patternImage);
+            canvas.width = productImage.width;
+            canvas.height = productImage.height;
+            interp.onload = function() {
+                source.onload = function() {
+                    model.onload = function() {
+                        mask.onload = function() {
+                            self.setDrawType(drawTypeParam);
+                            draw();
+                        }
+                        mask.src = "mask.png";
+                    }
+                    model.src = "model1.jpg"
+                }
+                source.src = "uv.png";
+            }
+            interp.src = "dasd.png";
+        }
+        productImage.src = productImageSrc;
+    }
+}
+
+function PaternMaker(patternCanvasParam) {
+
+    var self = this;
+
+    var patternCanvas = patternCanvasParam;
+    var patternContext = patternCanvasParam.getContext("2d");
+    var pattern, patternImage;
+
+    this.setPatternImage = function(patternImageParam) {
+        patternImage = patternImageParam;
+        pattern = patternContext.createPattern(patternImage, 'repeat');
+    }
+
+    this.makePattern = function(currentX, currentY)  {
+        patternContext.clearRect(0, 0, patternCanvas.width, patternCanvas.height);
+        patternContext.rect(0, 0, patternCanvas.width, patternCanvas.height);
+        patternContext.translate(currentX, currentY);
+        patternContext.fillStyle = pattern;
+        patternContext.fillRect(-currentX, -currentY, patternCanvas.width, patternCanvas.height);
+        patternContext.translate(-currentX, -currentY);
+    }
+
+}
+
+function WebglRenderer(interp, source, model, mask, patternCanvasParam) {
+
+    var self = this;
+    var program;
+    var vertexPositionsBuffer;
+    var uvBuffer;
+    var gl;
+    var patternCanvas = patternCanvasParam;
+    var canvas;
+
+    this.setVisibility = function(visible) {
+        if (visible) {
+            $(canvas).css("display", "");
+            console.log("vis");
+        } else {
+            $(canvas).css("display", "none");
+            console.log("invis");
+        }
+    }
+
+    function setupGlTexture(glTextureUnit, texture) {
+        gl.activeTexture(glTextureUnit);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        // Set the parameters so we can render any size image.
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    }
+
+    function uploadGlTexture(glTextureUnit, canvasOrImage) {
+        gl.activeTexture(glTextureUnit);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvasOrImage);
+    }
+
+    function setupGlUniformTexture(name, slot) {
+        if (program)
+        {
+            var location = gl.getUniformLocation(program, name);
+            gl.uniform1i(location, slot);
+        }
+    }
+
+    this.initWebgl = function() {
+
+        console.log("init");
+
+        canvas = document.createElement('canvas');
+        canvas.setAttribute('width', 500);
+        canvas.setAttribute('height', 555);
+
+        $("#3dContainer").append(canvas);
+
+        gl = canvas.getContext("experimental-webgl");
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        var interpTexture = gl.createTexture();
+        var modelTexture = gl.createTexture();
+        var sourceTexture = gl.createTexture();
+        var maskTexture = gl.createTexture();
+
+        setupGlTexture(gl.TEXTURE0, interpTexture);
+        setupGlTexture(gl.TEXTURE1, modelTexture);
+        setupGlTexture(gl.TEXTURE2, sourceTexture);
+        setupGlTexture(gl.TEXTURE3, maskTexture);
+        uploadGlTexture(gl.TEXTURE0, interp);
+        uploadGlTexture(gl.TEXTURE1, model);
+        uploadGlTexture(gl.TEXTURE2, source);
+        uploadGlTexture(gl.TEXTURE3, mask);
+
+        var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+        var vertexShaderSource = $("#vertexShaderWebgl").html();
+        gl.shaderSource(vertexShader, vertexShaderSource);
+        gl.compileShader(vertexShader);
+
+        var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+        var fragmentShaderSource = $("#fragmentShaderWebgl").html();
+        gl.shaderSource(fragmentShader, fragmentShaderSource);
+        gl.compileShader(fragmentShader);
+
+        program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+
+        gl.useProgram(program);
+
+        var texCoordLocation = gl.getAttribLocation(program, "a_texCoord");
+
+        setupGlUniformTexture("u_interp", 0);
+        setupGlUniformTexture("u_model", 1);
+        setupGlUniformTexture("u_source", 2);
+        setupGlUniformTexture("u_mask", 3);
+
+        var texCoordBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+            0.0, 0.0,
+            1.0, 0.0,
+            0.0, 1.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            1.0, 1.0]), gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(texCoordLocation);
+        gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+
+        var positionLocation = gl.getAttribLocation(program, "a_position");
+
+        var buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(
+            gl.ARRAY_BUFFER,
+            new Float32Array([
+                -1.0, -1.0,
+                1.0, -1.0,
+                -1.0, 1.0,
+                -1.0, 1.0,
+                1.0, -1.0,
+                1.0, 1.0]),
+            gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+        self.drawWebgl();
+    }
+
+    this.drawWebgl = function() {
+        uploadGlTexture(gl.TEXTURE2, patternCanvas);
+
+        gl.clearColor(1.0, 0.0, 0.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        positionLocation = gl.getAttribLocation(program, "a_position");
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+
+}
+
+function CanvasRenderer(canvasParam, patternCanvasParam, derp) {
+
+    var self = this;
+
+    var canvas = canvasParam;
+    var canvasContext = canvas.getContext("2d");
+    var patternCanvas = patternCanvasParam;
+    var patternSize = 1;
+    var productImage;
+
+    this.setVisibility = function(visible) {
+        if (visible) {
+            $(canvas).css("display", "");
+        } else {
+            $(canvas).css("display", "none");
+        }
+    }
+
+    this.setProductImage = function(productImageParam) {
+        productImage = productImageParam;
+    }
+
+    this.setPatternSize = function(patternSizeParam) {
+        patternSize = patternSizeParam;
+    }
+
+    this.render2D = function() {
+        canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+        canvasContext.drawImage(productImage,0,0);
+        canvasContext.globalCompositeOperation="source-atop";
+        canvasContext.globalAlpha = 0.75;
+        canvasContext.drawImage(patternCanvas, 0, 0, patternCanvas.width * patternSize, patternCanvas.height * patternSize);
+        canvasContext.globalAlpha = 1;
+        canvasContext.globalCompositeOperation = "multiply";
+        canvasContext.drawImage(productImage,0,0);
+    }
+}
+
+function ThreeJsRenderer(canvasParam, patternCanvasParam) {
+
+    var self = this;
+
+    var patternCanvas = patternCanvasParam;
+    var canvas = canvasParam;
+    var renderCanvas;
+    var scene, camera, renderer, plane;
+    var animationID;
+    var keepRendering = true;
+    var productImage;
+
+    this.setProductImage = function(productImageParam) {
+        productImage = productImageParam;
+    }
+
+    this.setVisibility = function(visible) {
+        if (visible) {
+            $(renderCanvas).css("display", "");
+        } else {
+            $(renderCanvas).css("display", "none");
+        }
+    }
+
+    this.init3d = function() {
         scene = new THREE.Scene();
 
         var SCREEN_WIDTH = productImage.width, SCREEN_HEIGHT = productImage.height;
@@ -241,10 +508,11 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
         renderer = new THREE.WebGLRenderer();
         renderer.setSize(productImage.width, productImage.height);
         renderer.setClearColor( 0xEEEEEE, 1);
-        document.getElementById("3dContainer").appendChild(renderer.domElement);
+        renderCanvas = renderer.domElement;
+        document.getElementById("3dContainer").appendChild(renderCanvas);
 
         var DiffuseTexture = new THREE.Texture(canvas);
-        var DisplacementTexture = new THREE.ImageUtils.loadTexture("imgs/DisplacementMap.jpg", {}, render);
+        var DisplacementTexture = new THREE.ImageUtils.loadTexture("imgs/DisplacementMap.jpg", {}, self.render);
         var shader = THREE.ShaderLib["normalmap"];
         var fragShader = document.getElementById("fragmentShader").innerHTML;
 
@@ -260,98 +528,17 @@ function ProductPreview(canvasId, patternCanvasId, productImageSrc, patternImage
             uniforms: uniforms,
             lights: true
         };
+
         var NormalMaterial = new THREE.ShaderMaterial(parameters);
-
-        //var sphereMaterial =
-        //    new THREE.MeshLambertMaterial(
-        //        {
-        //            color: 0
-        //        });
-        //
-        //var material = new THREE.MeshPhongMaterial( {
-        //
-        //    transparent: true,
-        //
-        //    map: new THREE.Texture(canvas), //DiffuseTexture,
-        //
-        //    displacementMap: DisplacementTexture,
-        //    displacementScale: 1,
-        //    displacementBias: 0,
-        //
-        //    side: THREE.DoubleSide
-        //
-        //} );
-
         var geometry = new THREE.PlaneGeometry(16, 16, 256, 256);
         geometry.computeTangents();
 
         plane = new THREE.Mesh(geometry, NormalMaterial  /*material*/);
         scene.add(plane);
-
-        //ambientLight = new THREE.AmbientLight(0xFFFFFF);
-        //scene.add(ambientLight);
-
     }
 
-    function animate() {
-        //setTimeout( function() {
-        //    if (keepRendering)
-        //        requestAnimationFrame( animate );
-        //
-        //}, 1000 / 60 );
-        render();
-        if (keepRendering)
-            requestAnimationFrame(animate);
+    this.render = function() {
+        plane.material.uniforms.tDiffuse.value.needsUpdate = true;
+        renderer.render(scene, camera);
     }
-
-    function render() {
-        if(draw3d) {
-            console.log("Rendering");
-            renderer.render(scene, camera);
-        }
-    }
-
-    changeImageDimensions();
-    patternImage.onload=function()
-    {
-        productImage.onload=function()
-        {
-            pattern = patternContext.createPattern(patternImage, 'repeat');
-            canvas.width = productImage.width;
-            canvas.height = productImage.height;
-            if (draw3d)
-                init3d();
-            draw();
-        }
-        productImage.src = productImageSrc;
-    }
-
-
-    //window.onbeforeunload = function()
-    //{
-    //    plane.geometry.dispose();
-    //    plane.material.dispose();
-    //    plane.material.uniforms.tDiffuse.value.dispose();
-    //    plane.dipose();
-    //    scene.remove("plane");
-    //    canvas = null;
-    //    DisplacementTexture = null;
-    //    DiffuseTexture = null;
-    //    renderer.resetGlState();
-    //    renderer.dispose();
-    //}
-    //
-    //window.onunload = function()
-    //{
-    //    plane.geometry.dispose();
-    //    plane.material.dispose();
-    //    plane.material.uniforms.tDiffuse.value.dispose();
-    //    plane.dipose();
-    //    scene.remove("plane");
-    //    canvas = null;
-    //    DisplacementTexture = null;
-    //    DiffuseTexture = null;
-    //    renderer.resetGlState();
-    //    renderer.dispose();
-    //}
 }
