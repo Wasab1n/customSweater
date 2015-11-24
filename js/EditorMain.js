@@ -48,7 +48,7 @@ $(document).ready(function() {
         var i = productPreview.getPatternImageId();
         if (buttonId != productPreview.getPatternImageId()) {
             var newImage = new Image();
-            newImage.src = "imgs/patterns/pattern" + buttonId + ".png";
+            newImage.src = lc.getImage().toDataURL("img/png", 1);
             productPreview.setOriginalPatternImage(newImage);
             productPreview.setOriginalSizePatternImage(newImage); 
             productPreview.setPatternImage(newImage);
