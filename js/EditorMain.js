@@ -8,15 +8,7 @@ $(document).ready(function() {
     var colourChanger = null;
     var productPreview = new ProductPreview("canvas", "patternCanvas", "imgs/sweater.png", patternImage, 1, "webgl");
     var mouseHandler = new MouseHandler(productPreview);
-    
-    //Sukuriamas piesimo modulis
-    var lc = LC.init(document.getElementsByClassName('literally')[0],
-            {
-            imageURLPrefix: 'lib/img',
-            imageSize: {width: 500, height: 500}
-        }
-        );
-    
+
     $(window).load(function() {
         colourChanger = new ColourChanger(productPreview);
         getColours(productPreview.getPatternImageId());
@@ -34,23 +26,15 @@ $(document).ready(function() {
             }
         });
     }
-    
-    $(".literally").on("mouseup mousedown", function(){
-        var newImage = new Image();
-            newImage.src = lc.getImage().toDataURL("img/png", 1);
-            productPreview.setOriginalPatternImage(newImage);
-            productPreview.setOriginalSizePatternImage(newImage); 
-            productPreview.setPatternImage(newImage);
-    });
 
     $(".patternButton").click( function(e) {
         var buttonId = $(this).attr("buttonNumber");
         var i = productPreview.getPatternImageId();
         if (buttonId != productPreview.getPatternImageId()) {
             var newImage = new Image();
-            newImage.src = lc.getImage().toDataURL("img/png", 1);
+            newImage.src = "imgs/patterns/pattern" + buttonId + ".png";
             productPreview.setOriginalPatternImage(newImage);
-            productPreview.setOriginalSizePatternImage(newImage); 
+            productPreview.setOriginalSizePatternImage(newImage);
             productPreview.setPatternImage(newImage);
             getColours(productPreview.getPatternImageId());
             colourChanged = null;
