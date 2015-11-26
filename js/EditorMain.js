@@ -62,8 +62,9 @@ $(document).ready(function() {
     $("#colours").on("click", "div", function (e)
     {
         var buttonId = $(this).attr("id");
+        var id = buttonId.split(" ");
         if (colourChanged == null || colourChanged != buttonId) {
-            colourChanger.changeImageColour(buttonId);
+            colourChanger.changeImageColour(id[0],id[1]);
             colourChanged = buttonId;
         }
     });
@@ -73,15 +74,18 @@ $(document).ready(function() {
 
 function ColourChanger(productPreviewParam)
 {
+    
+    
     var productPreview = productPreviewParam;
     var canvas = document.getElementById("colourChangeCanvas");
     var context = canvas.getContext("2d");
     var originalPixels = null;
     var currentPixels = null;
     var canvasReady = false;
-    var colours = [];
-    var imageColours = [];
-
+    var colours = [];           //masyvas su galimais spalvu deriniais
+    var colour = [];           //bendras masyvas, kuriame yra visu spalvu paleciu spalvos
+    var imageColours = [];      //masyvas saugantis originalaus rasto skirtingu spalvu pikseliu informacija.
+    
     this.getColours = function()
     {
         return colours;
@@ -107,6 +111,24 @@ function ColourChanger(productPreviewParam)
     {
         return productPreview;
     }
+    
+    
+    //Sujungiamps visu spalvu paleciu spalvos i viena bendra masyva 
+    var combineColours = function(){
+        colour = [];
+        var newColour;
+        for(var i = 0; i < colours.length; i++){
+            for(var j = 0; j < colours[i].length; j++){
+                newColour = { 
+                    R: colours[i][j].R, 
+                    G: colours[i][j].G, 
+                    B: colours[i][j].B };
+                if(!colourExists(newColour, colour)){
+                    colour.push(newColour);
+                }
+            }
+        }
+    }
 
     var getPixels = function()
     {
@@ -131,7 +153,6 @@ function ColourChanger(productPreviewParam)
             patternImage.width,
             patternImage.height
         );
-
         imageColours = [];
         for (var i = 0, l = originalPixels.data.length; i < l; i+= 4) {
             var colour = {R: originalPixels.data[i], G: originalPixels.data[i + 1], B: originalPixels.data[i + 2]};
@@ -139,7 +160,7 @@ function ColourChanger(productPreviewParam)
                 imageColours.push(colour);
             }
         }
-
+        
         currentPixels = context.getImageData(
             0,
             0,
@@ -170,15 +191,15 @@ function ColourChanger(productPreviewParam)
     {
         canvasReady = false;
         if(!originalPixels) return;
-        // Paima raðto atskirø detaliø spalvas.
+        // Paima raï¿½to atskirï¿½ detaliï¿½ spalvas.
         var newColours = colours[colourId];
 
         var index = 0;
         // Eina per visus paveiksliuko pixelius
         for (var i = 0, l = originalPixels.data.length; i < l; i+= 4) {
-            // Paima pixelio spalvà
+            // Paima pixelio spalvï¿½
             var pixelColour = {R: originalPixels.data[i], G: originalPixels.data[i + 1], B: originalPixels.data[i + 2]};
-            // Suranda kurià spalvà reikia naudoti pagal originalaus paveiksliuko pixelio spalvà
+            // Suranda kuriï¿½ spalvï¿½ reikia naudoti pagal originalaus paveiksliuko pixelio spalvï¿½
             var colourIndex = getColourIndex(pixelColour);
             if (colourIndex >= newColours.length) {
                 // Pakeicia pixelio spalva, jeigu foldery nera tiek paveiksliuku su spalvom kokio indexo dabar reikia,
@@ -205,13 +226,37 @@ function ColourChanger(productPreviewParam)
         context.putImageData(currentPixels, 0, 0);
         return canvas.toDataURL("image/png");
     }
+    
+    var replaceColour = function(oldColorId, newColorId){
+        
+        canvasReady = false;
+        if(!originalPixels) return;
+        
+        var oldColour = imageColours[oldColorId];
+        var newColour = colour[newColorId];
+        
+        for(var i = 0; i < originalPixels.data.length; i += 4){
+            if(originalPixels.data[i] == oldColour.R && originalPixels.data[i+1] == oldColour.G && originalPixels.data[i+2] == oldColour.B){
+                currentPixels.data[i] = newColour.R;
+                currentPixels.data[i+1] = newColour.G;
+                currentPixels.data[i+2] = newColour.B;
+            }
+        }
+        context.putImageData(currentPixels, 0, 0);
+        return canvas.toDataURL("image/png");
+    }
+    
 
-    this.changeImageColour = function(colourId)
+    //Main
+    this.changeImageColour = function(oldColorId, newColourId)
     {
-        getPixels();
-        var colourURL = changeColour(colourId);
+        //getPixels();  
+        //combineColours();
+        
+        var colourURL = replaceColour(oldColorId, newColourId);
         var newImage = new Image();
         newImage.src = colourURL;
+
         productPreview.setPatternImage(newImage);
         productPreview.setOriginalSizePatternImage(newImage);
     }
@@ -219,20 +264,42 @@ function ColourChanger(productPreviewParam)
 
     this.displayColourButtons = function()
     {
+        combineColours();
+        var newDiv;
         var colourDiv = document.getElementById("colours");
         while (colourDiv.firstChild) {
             colourDiv.removeChild(colourDiv.firstChild);
         }
-        for (i = 0; i < colours.length; i++) {
+        getPixels();
+        for (var i = 0; i < imageColours.length; i++) {
+            for(var j = 0; j < colour.length; j++){
+            //var colourURL = replaceColour(1,1);
+            //var colourImage = new Image();
+            //colourImage.src = colourURL;
+            newDiv = document.createElement("div");
+            newDiv.className = "colourButton";
+            //newDiv.style.backgroundImage = "url(" + colourURL + ")";
+            newDiv.style.backgroundColor = "rgb(" + colour[j].R + "," + colour[j].G + ","+ colour[j].B + ")";
+            newDiv.id =  i + " " + j;
+            colourDiv.appendChild(newDiv);
+            
+            }
+            
+        }
+        /*for(var i = 0; i < imageColours.length; i++){
             getPixels();
-            var colourURL = changeColour(i);
+            var colourURL = replaceColour(1,1);
             var colourImage = new Image();
             colourImage.src = colourURL;
-            var newDiv = document.createElement("div");
-            newDiv.className = "colourButton";
-            newDiv.style.backgroundImage = "url(" + colourURL + ")";
-            newDiv.id = i;
-            colourDiv.appendChild(newDiv);
-        }
+            for(var j = 0; j < colour.length; j++){
+                newDiv = $("<div/>", {
+                id: i*10*j,
+                "class": "colourButton",
+                style: "rgb(" + colour[i].R + "," + colour[i].G + ","+ colour[i].B + ")"
+                });
+            }
+            newDiv.appendTo("#colours");
+        }*/
+    
     }
 }
