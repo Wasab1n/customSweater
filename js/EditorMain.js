@@ -63,10 +63,7 @@ $(document).ready(function() {
     {
         var buttonId = $(this).attr("id");
         var id = buttonId.split(" ");
-        if (colourChanged == null || colourChanged != buttonId) {
-            colourChanger.changeImageColour(id[0],id[1]);
-            colourChanged = buttonId;
-        }
+        colourChanger.changeImageColour(id[0],id[1]);
     });
 });
 
@@ -265,13 +262,17 @@ function ColourChanger(productPreviewParam)
     this.displayColourButtons = function()
     {
         combineColours();
-        var newDiv;
+        var newDiv,
+            newColumn;
         var colourDiv = document.getElementById("colours");
         while (colourDiv.firstChild) {
             colourDiv.removeChild(colourDiv.firstChild);
         }
         getPixels();
         for (var i = 0; i < imageColours.length; i++) {
+            newColumn = document.createElement("div");
+            newColumn.id = i;
+            newColumn.className = "colourColumn";
             for(var j = 0; j < colour.length; j++){
             //var colourURL = replaceColour(1,1);
             //var colourImage = new Image();
@@ -281,10 +282,9 @@ function ColourChanger(productPreviewParam)
             //newDiv.style.backgroundImage = "url(" + colourURL + ")";
             newDiv.style.backgroundColor = "rgb(" + colour[j].R + "," + colour[j].G + ","+ colour[j].B + ")";
             newDiv.id =  i + " " + j;
-            colourDiv.appendChild(newDiv);
-            
+            newColumn.appendChild(newDiv);
             }
-            
+            colourDiv.appendChild(newColumn)
         }
         /*for(var i = 0; i < imageColours.length; i++){
             getPixels();
