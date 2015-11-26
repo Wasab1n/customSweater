@@ -74,7 +74,7 @@ html, body {
 .colourButton {
     width: 30px;
     height: 30px;
-    margin: 15px;
+    margin: 5px;
     cursor: pointer;
     float: left;
     background-color: white;
